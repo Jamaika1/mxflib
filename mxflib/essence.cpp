@@ -27,7 +27,7 @@
 
 
 #include "mxflib/mxflib.h"
-
+#include <cstddef>
 
 
 
@@ -1669,7 +1669,7 @@ Position BodyReader::Seek(UInt32 BodySID, Position Pos)
 		
 		RIP::iterator it = File->FileRIP.lower_bound(PredictedPos+1);
 		if(it == File->FileRIP.end()) 
-			return NULL;
+			return (Position) nullptr;
 		if(it != File->FileRIP.begin()) 
 			it--;
 
@@ -1777,11 +1777,11 @@ bool BodyReader::Eof(void)
 GCReader *BodyReader::NewGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandler /*=NULL*/, GCReadHandlerPtr FillerHandler /*=NULL*/)
 {
 	// Don't try to make two readers for the same SID
-	if(GetGCReader(BodySID)) return false;
+	if(GetGCReader(BodySID)) return (GCReader*) nullptr;
 
 	// Make the new reader
 	GCReaderPtr Reader = new GCReader(File, DefaultHandler ? DefaultHandler : GCRDefaultHandler, FillerHandler ? FillerHandler : GCRFillerHandler);
-	if(!Reader) return false;
+	if(!Reader) return (GCReader*) nullptr;
 
 	// Set the encryption handler if one is configured
 	if(GCREncryptionHandler) Reader->SetEncryptionHandler(GCREncryptionHandler);
@@ -4585,7 +4585,7 @@ EssenceParser::WrappingConfigPtr FileParser::SelectWrappingOption(bool AllowMult
 	// Return the list of options for these parsers
 	// DRAGONS: This called function will cope with an empty or NULL PDList
 	EssenceParser::WrappingConfigList WCL = ListWrappingOptions(AllowMultiples, PDList, ForceEditRate, ForceWrap);
-	if(WCL.empty()) return NULL;
+	if(WCL.empty()) return (WrappingConfigPtr) nullptr;
 
 	WCL.front()->KAGSize = KAGSize;
 
@@ -4947,10 +4947,10 @@ bool FileParser::GetNextSource(void)
 DataChunkPtr FileParser::SequentialEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxSize /*=0*/ )
 { 
 	// We need a valid source to continue
-	if(!ValidSource()) return NULL;
+	if(!ValidSource()) return (DataChunkPtr) nullptr;
 
 	// If we have emptied all files then exit now
-	if(Outer->AtEOF) return NULL;
+	if(Outer->AtEOF) return (DataChunkPtr) nullptr;
 
 	// Get the next data from the current source
 	DataChunkPtr Ret = CurrentSource->GetEssenceData(Size, MaxSize);
@@ -4980,7 +4980,7 @@ EssenceSourcePtr FileParser::GetEssenceSource(UInt32 Stream)
 	if(Stream != CurrentStream)
 	{
 		error("A stream of ID 0x%04x was requested from a file parser that is configured for ID 0x%04x\n", Stream, CurrentStream);
-		return NULL;
+		return (EssenceSourcePtr) nullptr;
 	}
 
 	// Ensure that the master source is installed - this is required if there are any sub-streams
@@ -5002,7 +5002,7 @@ EssenceSourcePtr FileParser::GetSubSource(UInt32 Stream)
 	}
 
 	// If we don't have a parser for the main stream - quit now
-	if(!SubParser) return NULL;
+	if(!SubParser) return (EssenceSourcePtr) nullptr;
 
 
 	//! Build a new info block
@@ -5195,7 +5195,7 @@ DataChunkPtr RangedEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxS
 	}
 
 	// Have we already done everything?
-	if(Ended) return NULL;
+	if(Ended) return (DataChunkPtr) nullptr;
 
 	// Do the read
 	DataChunkPtr Ret = Base->GetEssenceData(Size, MaxSize);
@@ -5217,7 +5217,7 @@ DataChunkPtr RangedEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxS
 	if(Ending && Base->IsEditPoint()) 
 	{
 		Ended = true;
-		return NULL;
+		return (DataChunkPtr) nullptr;
 	}
 
 	// Update our position
@@ -5329,7 +5329,7 @@ DataChunkPtr RangedEssenceSubSource::GetEssenceData(size_t Size /*=0*/, size_t M
 	}
 
 	// Exit now is all is done
-	if(Pos > RequestedEnd) return NULL;
+	if(Pos > RequestedEnd) return (DataChunkPtr) nullptr;
 
 	// Do the read
 	DataChunkPtr Ret = Base->GetEssenceData(Size, MaxSize);
@@ -5986,7 +5986,7 @@ namespace mxflib
 			it++;
 		}
 
-		return NULL;
+		return (BodyStreamPtr) nullptr;
 	}
 
 }
